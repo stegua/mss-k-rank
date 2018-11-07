@@ -30,3 +30,5 @@
 *.exe
 *.out
 *.app
+/msvc/.vs/RankSep/v15
+/msvc/mss-k-rank/.vs/mss-k-rank/v15

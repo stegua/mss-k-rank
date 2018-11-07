@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="cliquer">
+      <UniqueIdentifier>{33f581bf-78a3-4df2-aaf9-47b74fedd6db}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\bitGraph.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mssRank.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\separatorBnB.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\separatorBnC.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\times.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\externs\cliquer-1.21\cliquer.c">
+      <Filter>cliquer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\externs\cliquer-1.21\graph.c">
+      <Filter>cliquer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\externs\cliquer-1.21\reorder.c">
+      <Filter>cliquer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\BitGraph.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Find_1_rank.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Find_2_rank.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Find_3_rank.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Find_4_rank.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Find_5_rank.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mytime.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Separators.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\times.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Utils.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\VectorBitSet.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\VertexTuples.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\externs\cliquer-1.21\cliquer.h">
+      <Filter>cliquer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\externs\cliquer-1.21\cliquerconf.h">
+      <Filter>cliquer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\externs\cliquer-1.21\graph.h">
+      <Filter>cliquer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\externs\cliquer-1.21\misc.h">
+      <Filter>cliquer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\externs\cliquer-1.21\reorder.h">
+      <Filter>cliquer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\externs\cliquer-1.21\set.h">
+      <Filter>cliquer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\externs\cliquer-1.21\mytime.h">
+      <Filter>cliquer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\externs\cliquer-1.21\times.h">
+      <Filter>cliquer</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
