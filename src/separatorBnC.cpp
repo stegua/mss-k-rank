@@ -57,7 +57,7 @@ find_alpha_cut(
    clique_options* opts;
    // Set the options for using Cliquer
    opts = (clique_options*)malloc(sizeof(clique_options));
-   opts->time_function = NULL;
+   opts->time_function = clique_time_out;
    opts->reorder_function = reorder_by_greedy_coloring;
    opts->reorder_map = NULL;
    // Build Support Graph

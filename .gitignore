@@ -32,3 +32,5 @@
 *.app
 /msvc/.vs/RankSep/v15
 /msvc/mss-k-rank/.vs/mss-k-rank/v15
+/msvc/mss-k-rank/x64/Release/mss-k-rank.tlog
+/msvc/mss-k-rank/x64/Release

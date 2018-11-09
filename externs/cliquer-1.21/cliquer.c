@@ -159,6 +159,11 @@ static int unweighted_clique_search_single(int *table, int min_size,
       newtable = malloc(g->n * sizeof(int));
    }
    for (i = 1; i < g->n; i++) {
+
+      // Check for timeout
+      if (!opts->time_function(0, 0, 0, 0, 0, 0, NULL))
+         return 0;
+
       w = v;
       v = table[i];
 
@@ -187,6 +192,7 @@ static int unweighted_clique_search_single(int *table, int min_size,
             return 0;
          }
       }
+
    }
 
    temp_list[temp_count++] = newtable;
@@ -528,8 +534,8 @@ static int weighted_clique_search_single(int *table, int min_weight,
       return 0;
    }
 
-   localopts.time_function = NULL;
-   localopts.reorder_function = NULL;
+   localopts.time_function = opts->time_function;
+   localopts.reorder_function = opts->reorder_function;
    localopts.reorder_map = NULL;
    localopts.user_function = false_function;
    localopts.user_data = NULL;
@@ -1031,6 +1037,7 @@ set_t clique_unweighted_find_single(graph_t *g, int min_size, int max_size,
    if (opts == NULL)
       opts = clique_default_options;
 
+
    ASSERT((sizeof(setelement) * 8) == ELEMENTSIZE);
    ASSERT(g != NULL);
    ASSERT(min_size >= 0);
@@ -1302,6 +1309,7 @@ set_t clique_find_single(graph_t *g, int min_weight, int max_weight,
    ASSERT((max_weight == 0) || (min_weight <= max_weight));
    ASSERT(!((min_weight == 0) && (max_weight > 0)));
    ASSERT((opts->reorder_function == NULL) || (opts->reorder_map == NULL));
+
 
    if ((max_weight > 0) && (min_weight > max_weight)) {
       /* state was not changed */
@@ -1649,6 +1657,25 @@ boolean clique_print_time_always(int level, int i, int n, int max,
               i, n, max, realtime, (realtime - prev_time) / (i - prev_i));
    prev_time = realtime;
    prev_i = i;
+
+   return TRUE;
+}
+
+
+/*
+ * clique_time_out()
+ *
+ *  Abort the search once the timeout is expired
+ */
+boolean clique_time_out(int level, int i, int n, int max,
+                        double cputime, double realtime,
+                        clique_options *opts) {
+   long tt = clock()/CLOCKS_PER_SEC;
+
+   if (tt >= 7200) { // TIMEOUT HARD CODED (UGLY, BUT WE HAVE TO FINISH THIS PAPER!)
+      fprintf(stdout, "timeout sepsep!\n");
+      return FALSE;
+   }
 
    return TRUE;
 }

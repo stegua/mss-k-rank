@@ -94,7 +94,7 @@ void solveLP(BitGraph & G, double alpha, bool BnC) {
 
    // Build master problem
    GRBloadenv(&env_master, NULL);
-   GRBsetintparam(env_master, GRB_INT_PAR_OUTPUTFLAG, 1);
+   GRBsetintparam(env_master, GRB_INT_PAR_OUTPUTFLAG, 0);
    GRBsetintparam(env_master, GRB_INT_PAR_METHOD, GRB_METHOD_DUAL);
    GRBsetintparam(env_master, GRB_INT_PAR_THREADS, 1);
    GRBnewmodel(env_master, &master, "mss", n, oj, NULL, ub, NULL, NULL);
@@ -245,7 +245,7 @@ int main(int argc, char **argv) {
          }
       }
 
-   solveLP(H, atof(argv[2]), false);
+   solveLP(H, atof(argv[2]), true);
 
    //solveBranchAndCut(H, atof(argv[2]));
 

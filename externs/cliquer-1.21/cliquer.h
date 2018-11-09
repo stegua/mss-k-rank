@@ -49,7 +49,10 @@ extern boolean clique_print_time(int level, int i, int n, int max,
 extern boolean clique_print_time_always(int level, int i, int n, int max,
 					double cputime, double realtime,
 					clique_options *opts);
-
+extern boolean clique_time_out(int level, int i, int n, int max,
+                          double cputime, double realtime,
+                          clique_options *opts);
+						  
 extern void maximalize_clique(set_t s,graph_t *g); 
 extern void maximalize_clique_random(set_t s,graph_t *g); 
 
