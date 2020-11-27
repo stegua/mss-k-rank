@@ -100,5 +100,8 @@
     <ClInclude Include="..\..\externs\cliquer-1.21\times.h">
       <Filter>cliquer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\DigraphSpp.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

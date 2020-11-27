@@ -66,7 +66,8 @@ int separatorBnB(BitGraph * G, double * x_bar, GRBmodel * master,
       free(val);
       if (result.first <= alpha + cut_viol)
          ret_code = 2;
-      ret_code = 1;
+      else
+         ret_code = 1;
    } else
       fprintf(stdout, "%s Violation: %.3f |U| = %d alpha=%.0f zeros: %d cut_viol: %.3f ",
               msg.c_str(), 0.0, 0, alpha, n-zeros, cut_viol);
