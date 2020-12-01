@@ -218,7 +218,7 @@ public:
 	void init(node_t _n, arc_t _m) {
 		n = _n;
 		m = _m;
-		assert(n < node_last&& m < arc_last);
+		assert(n < node_last && m < arc_last);
 		// Reserve memory
 		Fs.reserve(n);
 		Bs.reserve(n);
@@ -492,8 +492,8 @@ public:
 		double viol = 1.0 + INT_TOL;
 
 		for (int u = 0; u < n; u++) {
-			for (int v: Fs[u])
-				for (int w: Fs[v])
+			for (int v : Fs[u])
+				for (int w : Fs[v])
 					if (H0.is_edge(u, w) && xbar[u] + xbar[v] + xbar[w] > viol) {
 						viol = xbar[u] + xbar[v] + xbar[w];
 						r = { v, u, w };
@@ -733,7 +733,7 @@ public:
 				AsDigraph G;
 
 				G.init(2 * t, 4 * W.size());
-				
+
 				for (int i = 0, i_max = W.size(); i < i_max; ++i) {
 					double l = std::max<double>(
 						1e-09,
