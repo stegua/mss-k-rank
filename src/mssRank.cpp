@@ -161,36 +161,36 @@ void solveLP(BitGraph& G, double alpha, bool BnC) {
 
 		for (int i = 0; i < n; ++i)
 			xbar[i] += perturba(gen);  // Diversity a random in [1e-05 ... 1e0-7]
-				
-				int sss = 0;
-				while (alpha0 <= alpha) {
-					if (BnC)
-						sss = separatorBnC(g, h, xbar, master, t0, 0, alpha0, cutvs[idx], start, msg);
-					else
-						sss = separatorBnB(&G, xbar, master, alpha0, cutvs[idx], start, msg);
 
-					if (sss > 0) {
-						if (sss == 2)
-							if (idx < 4)
-								idx++;
-						break;
-					}
+		int sss = 0;
+		while (alpha0 <= alpha) {
+			if (BnC)
+				sss = separatorBnC(g, h, xbar, master, t0, 0, alpha0, cutvs[idx], start, msg);
+			else
+				sss = separatorBnB(&G, xbar, master, alpha0, cutvs[idx], start, msg);
 
+			if (sss > 0) {
+				if (sss == 2)
 					if (idx < 4)
 						idx++;
-					else {
-						if (alpha0 <= alpha0) {
-							alpha0++;
-							idx = 0;
-							if (alpha0 == 3)
-								idx = 2;
-							if (alpha0 >= 4)
-								idx = 3;
-						}
-						else
-							break;
-					}
-				}			
+				break;
+			}
+
+			if (idx < 4)
+				idx++;
+			else {
+				if (alpha0 <= alpha0) {
+					alpha0++;
+					idx = 0;
+					if (alpha0 == 3)
+						idx = 2;
+					if (alpha0 >= 4)
+						idx = 3;
+				}
+				else
+					break;
+			}
+		}
 	}
 
 	end = std::chrono::steady_clock::now();
@@ -318,9 +318,9 @@ void solveLP_oddcycle(BitGraph& G, bool odd_wheel = false) {
 
 		end = std::chrono::steady_clock::now();
 		elapsed = double(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()) / 1000;
-		
+
 		std::string msg = "LogLocal: it " + std::to_string(n_iter++) + " Bound " + std::to_string(alpha_lp);
-		
+
 		// Incremental timeout
 		double t0 = TIMEOUT - elapsed;
 		if (t0 < 1e-03) break;
@@ -646,7 +646,7 @@ int main(int argc, char** argv) {
 		exit(EXIT_SUCCESS);
 	}
 
-	if (algo <= 5) 
+	if (algo <= 5)
 		solveLP(H, algo, false); // False ==> BaB
 	else {
 		if (algo <= 10)
