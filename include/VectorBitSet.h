@@ -14,7 +14,9 @@
 #include <array>
 #include <vector>
 
-#include "intrin.h"
+//#include "intrin.h"
+
+#define POPCNT __builtin_popcountll
 
 const int N_MAX = 512;
 
@@ -78,14 +80,14 @@ class VectorBitSet {
    int count() const {
       uint64_t c = 0;
       for (size_t pos = 0; pos < _words; ++pos)
-         c += __popcnt64(data[pos]);
+         c += POPCNT(data[pos]);
       return int(c);
    }
 
    bool more_than_k(const VectorBitSet& b, uint64_t k) const {
       uint64_t c = 0;
       for (size_t pos = 0; pos < _words; ++pos) {
-         c += __popcnt64(data[pos] & b.get_word(pos));
+         c += POPCNT(data[pos] & b.get_word(pos));
          if (c >= k)
             return true;
       }

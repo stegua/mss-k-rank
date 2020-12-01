@@ -101,9 +101,7 @@ rank_separation(GRBmodel *model,
    if (where == GRB_CB_MIPNODE) {
       struct callback_data_cg *mydata = (struct callback_data_cg *) usrdata;
       int n = mydata->n;
-      int *tour = NULL;
       double *x_bar = NULL;
-      int i, j, len, nz;
 
       double nodecount;
       GRBcbget(cbdata, where, GRB_CB_MIPNODE_NODCNT, (void *)&nodecount);
@@ -148,7 +146,7 @@ rank_separation(GRBmodel *model,
 
          if (best_rank.first > alpha + CUT_VIOL) {
             printf("LB: %.3f Violation: %.3f  |U| = %d  alpha=%.0f  zeros: %d\n",
-                   tmp_lp_obj, best_rank.first, best_rank.second.size(), alpha, zeros);
+                   tmp_lp_obj, best_rank.first, (int)best_rank.second.size(), alpha, zeros);
 
             int* ind = (int*)malloc(n * sizeof(int));
             double* val = (double*)malloc(n * sizeof(double));
@@ -183,7 +181,6 @@ int solveBranchAndCut(BitGraph & G, double alpha) {
 
    int n = G.num_vertices();
    int      status;
-   int      n_iter = 0;
    double   alpha_lp;
 
    // Pointers for Gurobi
