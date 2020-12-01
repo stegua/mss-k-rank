@@ -91,7 +91,7 @@ class BitGraph {
    }
 
    // Print adjacent list
-   void print() {
+   void print() const {
       for (int i = 0; i < n; ++i) {
          fprintf(stdout, "%d#%.3f: ", i, weights[i]);
          for (int j = 0; j < n; ++j)

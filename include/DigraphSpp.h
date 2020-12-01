@@ -20,12 +20,15 @@ using std::vector;
 #include <array>
 using std::array;
 
+#include <set>
+using std::set;
+
 #include "BitGraph.h"
 
 // Typedef for graph types
-typedef std::uint32_t   node_t;
-typedef std::uint32_t   arc_t;
-typedef double          cost_t;
+typedef int      node_t;
+typedef int      arc_t;
+typedef double   cost_t;
 
 
 // Largest possible value
@@ -215,7 +218,7 @@ public:
 	void init(node_t _n, arc_t _m) {
 		n = _n;
 		m = _m;
-		assert(n < node_last && m < arc_last);
+		assert(n < node_last&& m < arc_last);
 		// Reserve memory
 		Fs.reserve(n);
 		Bs.reserve(n);
@@ -252,7 +255,7 @@ public:
 
 		for (size_t i = 0, i_max = Fs.size(); i < i_max; ++i)
 			for (CArcIter it = Fs[i].begin(), it_end = Fs[i].end(); it != it_end; ++it)
-				fprintf(stdout, "a %d %d %d\n", int(i), Ac[*it].getTarget(), int(Ac[*it].getTime()));
+				fprintf(stdout, "a %d %d %f\n", int(i), Ac[*it].getTarget(), int(Ac[*it].getTime()));
 	}
 
 	//--------------------------------------------------
@@ -300,13 +303,13 @@ public:
 				// Return the full path 
 				sol.clear();
 				// Quando separo non serve
-				// tmp.push_back(T);
+				sol.push_back(T);
 				node_t z = P[u];
 				while (z != S) {
 					sol.push_back(z);
 					z = P[z];
 				}
-				sol.push_back(S);
+				//sol.push_back(S);
 
 				return Du;
 			}
@@ -471,77 +474,166 @@ private:
 	vector<cost_t> LandmarkFS;
 	vector<cost_t> LandmarkBS;
 };
-
-
-class SeparatorOddCycle {
+///---------------------------------------------------
+class SmallClique {
 public:
-	SeparatorOddCycle(const BitGraph& H) {
-		n = H.num_vertices();
-		V1.resize(n, 0);
-		V2.resize(n, 0);
-		B.resize(2u * n, 0);
-
-		int c = 0;
-		for (int v = 0; v < n; v++) {
-			V1[v] = c;
-			V2[v] = c + 1;
-			B[c] = v;
-			B[c + 1] = v;
-			c += 2;
+	SmallClique(const BitGraph& H) : n(H.num_vertices()), H0(H) {
+		Fs.resize(n);
+		for (int u = 0; u < n; u++) {
+			Fs.reserve(n);
+			for (int v = u + 1; v < n; v++)
+				if (H.is_edge(u, v))
+					Fs[u].push_back(v);
 		}
 	}
 
+	array<int, 3> separateK3(double* xbar) const {
+		array<int, 3> r = { -1, -1, -1 };
+		double viol = 1.0 + INT_TOL;
+
+		for (int u = 0; u < n; u++) {
+			for (int v: Fs[u])
+				for (int w: Fs[v])
+					if (H0.is_edge(u, w) && xbar[u] + xbar[v] + xbar[w] > viol) {
+						viol = xbar[u] + xbar[v] + xbar[w];
+						r = { v, u, w };
+					}
+		}
+
+		return r;
+	}
+
+	array<int, 4> separateK4(double* xbar) const {
+		array<int, 4> r = { -1, -1, -1, -1 };
+		double viol = 1.0 + INT_TOL;
+
+		for (int u = 0; u < n; ++u) {
+			for (int v : Fs[u])
+				for (int w : Fs[v])
+					if (H0.is_edge(u, w)) {
+						for (int z : Fs[w])
+							if (H0.is_edge(u, z) && H0.is_edge(v, z) && xbar[u] + xbar[v] + xbar[w] + xbar[z] > viol) {
+								viol = xbar[u] + xbar[v] + xbar[w] + xbar[z];
+								r = { u, v, w, z };
+							}
+					}
+		}
+
+		return r;
+	}
+
+private:
+	const int n;
+	vector<vector<int>> Fs;
+
+	BitGraph H0;
+};
+
+///---------------------------------------------------
+class SeparatorOddCycle {
+public:
+	SeparatorOddCycle(const BitGraph& H) : cutter_smallclique(H) {
+		n = H.num_vertices();
+		V1.resize(n, 0);
+		V2.resize(n, 0);
+		B.resize(n * 2, 0);
+
+		for (int v = 0; v < n; v++) {
+			V1[v] = v;
+			V2[v] = n + v;
+			B[v] = v;
+			B[n + v] = v;
+		}
+
+	}
 
 	// Separate a xbar returning an error code
-	int separate(const BitGraph& H, double* x_bar, GRBmodel* master) {
+	int separate(const BitGraph& H, double* x_bar, GRBmodel* master,
+		const std::string& msg) {
+		auto start_time = std::chrono::steady_clock::now();
+
+		// First try to separate triangles
+		auto tri = cutter_smallclique.separateK3(x_bar);
+		if (tri[0] != -1) {
+			int* ind = (int*)malloc(n * sizeof(int));
+			double* val = (double*)malloc(n * sizeof(double));
+			int nz = 0;
+			for (node_t i : tri) {
+				val[nz] = 1.0;
+				ind[nz] = int(i);
+				nz++;
+			}
+
+			POST("add triangle", GRBaddconstr(master, nz, ind, val, GRB_LESS_EQUAL, double(nz - 1) / 2, (const char*)NULL));
+
+			free(ind);
+			free(val);
+
+			auto end = std::chrono::steady_clock::now();
+			auto elapsed = double(std::chrono::duration_cast<std::chrono::milliseconds>(end - start_time).count()) / 1000;
+			fprintf(stdout, "%s Violation: %.3f |U| = %d Time %.3f\n",
+				msg.c_str(), 0.0, (int)tri.size(), elapsed);
+
+			return 1;
+		}
+
+		// Separate with general bipartite graph
 		AsDigraph G;
 		G.init(2 * n, 4 * n * n);
-		for (int v = 0; v < n; v++)
-			for (int u = v + 1; u < n; u++)
-				if (H.is_edge(v, u) || H.is_edge(u, v)) {
-					double l = std::max<double>(0.0, 1.0 - x_bar[u] - x_bar[v]);
+		for (int u = 0; u < n; u++)
+			for (int v = u + 1; v < n; v++)
+				if (H.is_edge(u, v)) {
+					double l = std::max<double>(1e-09, 1.0 - x_bar[u] - x_bar[v]);
+
 					G.addArc(V1[u], V2[v], l);
+					G.addArc(V1[v], V2[u], l);
+
+					G.addArc(V2[v], V1[u], l);
 					G.addArc(V2[u], V1[v], l);
 				}
-
 		G.landmarkSetting();
-		vector<vector<node_t>> cuts;
 
-		double bv = 1.0 - INT_TOL;
+		double bv = 1.0 - CUT_VIOL;
+		size_t best_l = n + 1;
+		vector<node_t> best_cut;
 		for (size_t v = 0; v < n; v++) {
 			vector<node_t> tc;
 			cost_t p = G.spp(V1[v], V2[v], tc);
-			if (p < bv) {
-				fprintf(stdout, "P %f %d \n", p, tc.size());
+			if (p <= bv && tc.size() < best_l) {
 				bv = p;
-				vector<node_t> tt;
-				for (node_t u : tc)
-					tt.push_back(B[u]);
-				tt.shrink_to_fit();
-				cuts.push_back(tt);
+				best_l = tc.size();
+				best_cut.clear();
+				for (node_t u : tc) {
+					best_cut.push_back(B[u]);
+				}
 			}
 		}
 
 		int ret_code = 0;
 
-		if (!cuts.empty())
-			for (const auto& cut : cuts) {
-				int* ind = (int*)malloc(n * sizeof(int));
-				double* val = (double*)malloc(n * sizeof(double));
-				int nz = 0;
-				for (node_t i : cut) {
-					val[nz] = 1.0;
-					ind[nz] = int(i);
-					nz++;
-				}
-
-				POST("add cut", GRBaddconstr(master, nz, ind, val, GRB_LESS_EQUAL, double(nz - 1) / 2, (const char*)NULL));
-
-				free(ind);
-				free(val);
-
-				ret_code = 1;
+		if (!best_cut.empty()) {
+			int* ind = (int*)malloc(n * sizeof(int));
+			double* val = (double*)malloc(n * sizeof(double));
+			int nz = 0;
+			for (node_t i : best_cut) {
+				val[nz] = 1.0;
+				ind[nz] = int(i);
+				nz++;
 			}
+
+			POST("add cut", GRBaddconstr(master, nz, ind, val, GRB_LESS_EQUAL, double(nz - 1) / 2, (const char*)NULL));
+
+			free(ind);
+			free(val);
+
+			ret_code = 1;
+
+			auto end = std::chrono::steady_clock::now();
+			auto elapsed = double(std::chrono::duration_cast<std::chrono::milliseconds>(end - start_time).count()) / 1000;
+			fprintf(stdout, "%s Violation: %.3f |U| = %d Time %.3f\n",
+				msg.c_str(), bv, (int)best_cut.size(), elapsed);
+		}
+
 
 		return ret_code;
 	}
@@ -552,4 +644,164 @@ private:
 	vector<int> V1;
 	vector<int> V2;
 	vector<int> B;
+
+	SmallClique cutter_smallclique;
+};
+
+///---------------------------------------------------
+class SeparatorOddWheel {
+public:
+	SeparatorOddWheel(const BitGraph& H) : cutter_smallclique(H) {
+		n = H.num_vertices();
+	}
+
+	// Separate a xbar returning an error code
+	int separate(const BitGraph& H, double* x_bar, GRBmodel* master,
+		const std::string& msg) {
+		auto start_time = std::chrono::steady_clock::now();
+
+		// First try to separate K4
+		auto tri = cutter_smallclique.separateK4(x_bar);
+
+		if (tri[0] != -1) {
+			int* ind = (int*)malloc(n * sizeof(int));
+			double* val = (double*)malloc(n * sizeof(double));
+			int nz = 0;
+			for (node_t i : tri) {
+				val[nz] = 1.0;
+				ind[nz] = int(i);
+				nz++;
+			}
+
+			POST("add quadri", GRBaddconstr(master, nz, ind, val, GRB_LESS_EQUAL, 1.0, (const char*)NULL));
+
+			free(ind);
+			free(val);
+
+			auto end = std::chrono::steady_clock::now();
+			auto elapsed = double(std::chrono::duration_cast<std::chrono::milliseconds>(end - start_time).count()) / 1000;
+			fprintf(stdout, "%s K4 Violation: %.3f |U| = %d Time %.3f\n",
+				msg.c_str(), 0.0, (int)tri.size(), elapsed);
+
+			return 1;
+		}
+
+		// Separate with general bipartite graph
+		int ret_code = 0;
+
+		std::set<int> U;
+		vector<int> V;
+		vector<int> W;
+		V.reserve(n);
+		W.reserve(n);
+
+		int bw = -1;
+		double bvv = 1.0 - CUT_VIOL;
+		size_t best_l = n + 1;
+		vector<node_t> best_cut;
+
+		for (int w = 0; w < n; w++) {
+			U.clear();
+			V.clear();
+			W.clear();
+
+			for (int u = 0; u < n; u++)
+				if (u != w && H.is_edge(u, w))
+					for (int v = 0; v < n; v++)
+						if (v != w && v != u && H.is_edge(w, v) && H.is_edge(u, v)) {
+							U.insert(u);
+							U.insert(v);
+							V.push_back(u);
+							W.push_back(v);
+						}
+
+			int t = U.size();
+			vector<int> V1(n, 0);
+			vector<int> V2(n, 0);
+			vector<int> B(2 * t, 0);
+
+			int c = 0;
+			for (int u : U) {
+				V1[u] = c;
+				V2[u] = c + 1;
+				B[c] = u;
+				B[c + 1] = u;
+				c = c + 2;
+			}
+
+			if (U.size() >= 3 && V.size() >= 3) {
+				AsDigraph G;
+
+				G.init(2 * t, 4 * W.size());
+				
+				for (int i = 0, i_max = W.size(); i < i_max; ++i) {
+					double l = std::max<double>(
+						1e-09,
+						1.0 - x_bar[V[i]] - x_bar[W[i]] - x_bar[w]
+						);
+
+					G.addArc(V1[V[i]], V2[W[i]], l);
+					G.addArc(V1[W[i]], V2[V[i]], l);
+
+					G.addArc(V2[W[i]], V1[V[i]], l);
+					G.addArc(V2[V[i]], V1[W[i]], l);
+				}
+
+				G.landmarkSetting();
+
+				double bv = 1.0 - x_bar[w] - CUT_VIOL;
+
+				for (int v : U) {
+					vector<node_t> tc;
+					cost_t p = G.spp(V1[v], V2[v], tc);
+					if (p <= bv && p < bvv && tc.size() < best_l && !tc.empty()) {
+						bv = p;
+						bvv = p;
+						bw = w;
+						best_l = tc.size();
+						best_cut.clear();
+						for (node_t u : tc) {
+							best_cut.push_back(B[u]);
+						}
+					}
+				}
+			}
+		}
+
+		if (best_cut.size() > 2) {
+			int* ind = (int*)malloc(n * sizeof(int));
+			double* val = (double*)malloc(n * sizeof(double));
+			int nz = 0;
+			for (node_t i : best_cut) {
+				val[nz] = 1.0;
+				ind[nz] = int(i);
+				nz++;
+			}
+			double b = 0.5 * (double(nz) - 1.0);
+			val[nz] = b;
+			ind[nz] = int(bw);
+			nz++;
+
+			POST("add odd wheel", GRBaddconstr(master, nz, ind, val, GRB_LESS_EQUAL, b, (const char*)NULL));
+
+			free(ind);
+			free(val);
+
+			ret_code = 1;
+
+			auto end = std::chrono::steady_clock::now();
+			auto elapsed = double(std::chrono::duration_cast<std::chrono::milliseconds>(end - start_time).count()) / 1000;
+			fprintf(stdout, "%s Wheel Violation: %.3f |U| = %d Time %.3f\n",
+				msg.c_str(), bvv, nz, elapsed);
+
+			return 1;
+		}
+
+		return ret_code;
+	}
+
+private:
+	int n;
+
+	SmallClique cutter_smallclique;
 };
