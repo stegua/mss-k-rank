@@ -140,6 +140,8 @@ static boolean false_function(set_t clique, graph_t *g, clique_options *opts);
  */
 static int unweighted_clique_search_single(int *table, int min_size,
       graph_t *g, clique_options *opts) {
+   struct tms tms;
+   struct timeval timeval;
    int i, j;
    int v, w;
    int *newtable;
@@ -161,8 +163,20 @@ static int unweighted_clique_search_single(int *table, int min_size,
    for (i = 1; i < g->n; i++) {
 
       // Check for timeout
-      if (!opts->time_function(0, 0, 0, 0, 0, 0, NULL))
-         return 0;
+      if (opts && opts->time_function) {
+         gettimeofday(&timeval, NULL);
+         times(&tms);
+         if (!opts->time_function(entrance_level,
+            i + 1, g->n, clique_size[v] *
+            weight_multiplier,
+            (double)(tms.tms_utime - cputimer.tms_utime) / clocks_per_sec,
+            timeval.tv_sec - realtimer.tv_sec +
+            (double)(timeval.tv_usec - realtimer.tv_usec) /
+            1000000, opts)) {
+            temp_list[temp_count++] = newtable;
+            return 0;
+         }
+      }
 
       w = v;
       v = table[i];
@@ -321,6 +335,8 @@ static int unweighted_clique_search_all(int *table, int start,
                                         int min_size, int max_size,
                                         boolean maximal, graph_t *g,
                                         clique_options *opts) {
+   struct timeval timeval;
+   struct tms tms;
    int i, j;
    int v;
    int *newtable;
@@ -358,6 +374,25 @@ static int unweighted_clique_search_all(int *table, int start,
          break;
       }
       count += j;
+
+      if (opts->time_function) {
+         gettimeofday(&timeval, NULL);
+         times(&tms);
+         if (!opts->time_function(entrance_level,
+            i + 1, g->n, min_size *
+            weight_multiplier,
+            (double)(tms.tms_utime -
+               cputimer.tms_utime) /
+            clocks_per_sec,
+            timeval.tv_sec -
+            realtimer.tv_sec +
+            (double)(timeval.tv_usec -
+               realtimer.tv_usec) /
+            1000000, opts)) {
+            /* Abort. */
+            break;
+         }
+      }
 
    }
    temp_list[temp_count++] = newtable;
@@ -505,6 +540,8 @@ static int sub_unweighted_all(int *table, int size, int min_size, int max_size,
 static int weighted_clique_search_single(int *table, int min_weight,
       int max_weight, graph_t *g,
       clique_options *opts) {
+   struct timeval timeval;
+   struct tms tms;
    int i, j;
    int v;
    int *newtable;
@@ -591,6 +628,26 @@ static int weighted_clique_search_single(int *table, int min_weight,
       }
 
       clique_size[v] = search_weight;
+
+      if (opts->time_function) {
+         gettimeofday(&timeval, NULL);
+         times(&tms);
+         if (!opts->time_function(entrance_level,
+            i + 1, g->n, clique_size[v] *
+            weight_multiplier,
+            (double)(tms.tms_utime -
+               cputimer.tms_utime) /
+            clocks_per_sec,
+            timeval.tv_sec -
+            realtimer.tv_sec +
+            (double)(timeval.tv_usec -
+               realtimer.tv_usec) /
+            1000000, opts)) {
+            set_free(current_clique);
+            current_clique = NULL;
+            break;
+         }
+      }
    }
    temp_list[temp_count++] = newtable;
    if (min_weight && (search_weight > 0)) {
@@ -631,6 +688,9 @@ static int weighted_clique_search_all(int *table, int start,
                                       int min_weight, int max_weight,
                                       boolean maximal, graph_t *g,
                                       clique_options *opts) {
+   struct timeval timeval;
+   struct tms tms;
+
    int i, j;
    int v;
    int *newtable;
@@ -669,6 +729,26 @@ static int weighted_clique_search_all(int *table, int start,
       if (j < 0) {
          /* Abort. */
          break;
+      }
+
+      if (opts->time_function) {
+         gettimeofday(&timeval, NULL);
+         times(&tms);
+         if (!opts->time_function(entrance_level,
+            i + 1, g->n, clique_size[v] *
+            weight_multiplier,
+            (double)(tms.tms_utime -
+               cputimer.tms_utime) /
+            clocks_per_sec,
+            timeval.tv_sec -
+            realtimer.tv_sec +
+            (double)(timeval.tv_usec -
+               realtimer.tv_usec) /
+            1000000, opts)) {
+            set_free(current_clique);
+            current_clique = NULL;
+            break;
+         }
       }
    }
    temp_list[temp_count++] = newtable;
@@ -1670,12 +1750,10 @@ boolean clique_print_time_always(int level, int i, int n, int max,
 boolean clique_time_out(int level, int i, int n, int max,
                         double cputime, double realtime,
                         clique_options *opts) {
-   long tt = clock()/CLOCKS_PER_SEC;
-
-   if (tt >= 7200) { // TIMEOUT HARD CODED (UGLY, BUT WE HAVE TO FINISH THIS PAPER!)
-      fprintf(stdout, "timeout sepsep!\n");
+//   int* tt = opts->user_data;
+//   int t0 = (int)realtime;
+   if (cputime < 7200.0)
+      return TRUE;// cputime < tt[0];
+   else
       return FALSE;
-   }
-
-   return TRUE;
 }
