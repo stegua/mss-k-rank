@@ -155,16 +155,18 @@ void solveLP(BitGraph& G, double alpha, bool BnC) {
 		}
 
 		end = std::chrono::steady_clock::now();
+		elapsed = double(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()) / 1000;
 		std::string msg = "LogLocal: it " + std::to_string(n_iter) + " Bound " + std::to_string(alpha_lp);
-		// Incremental timeout
-		double t0 = TIMEOUT - elapsed;
-		if (t0 < 1e-03) break;
-
+		
 		for (int i = 0; i < n; ++i)
 			xbar[i] += perturba(gen);  // Diversity a random in [1e-05 ... 1e0-7]
 
 		int sss = 0;
 		while (alpha0 <= alpha) {
+			end = std::chrono::steady_clock::now();
+			// Incremental timeout
+			double t0 = TIMEOUT - double(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()) / 1000;
+			if (t0 < 1e-03) break;
 			if (BnC)
 				sss = separatorBnC(g, h, xbar, master, t0, 0, alpha0, cutvs[idx], start, msg);
 			else
