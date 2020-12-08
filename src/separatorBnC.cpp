@@ -36,6 +36,7 @@ struct callback_data {
    graph_t* g;
    int n;
    double alpha;
+	double runtime;
 };
 
 
@@ -49,7 +50,8 @@ find_alpha_cut(
    graph_t*  h,  // Complement of the input graph (where clique are stable set)
    int*      V,  // Subset of vertices that gives the subgraph
 //      set_t     s,  /// New violated stable set
-   double alpha) {
+   double alpha,
+	double runtime) {
    int i, j;
    graph_t* F = graph_new(n);
    set_t    r = NULL;
@@ -57,6 +59,11 @@ find_alpha_cut(
    clique_options* opts;
    // Set the options for using Cliquer
    opts = (clique_options*)malloc(sizeof(clique_options));
+   // Set incremental timeout
+   double* timeout;
+   timeout = (double*)malloc(sizeof(double));
+   timeout[0] = runtime;
+   opts->user_data = timeout;
    opts->time_function = clique_time_out;
    opts->reorder_function = reorder_by_greedy_coloring;
    opts->reorder_map = NULL;
@@ -98,6 +105,7 @@ subsetelim(GRBmodel *model,
            void     *usrdata) {
    struct  callback_data *mydata = (struct callback_data *) usrdata;
    double  alpha = mydata->alpha;
+   double  runtime = mydata->runtime;
    int     n = mydata->n;
    int*    V;
    double* xbar;
@@ -122,7 +130,7 @@ subsetelim(GRBmodel *model,
       }
 
       if (nz > 0) {
-         set_t s = find_alpha_cut(n, nz, mydata->g, V, alpha);
+         set_t s = find_alpha_cut(n, nz, mydata->g, V, alpha, runtime);
          if (s != NULL && set_size(s) > alpha) {
             //set_print(s);
             int    *ind = NULL;
@@ -213,6 +221,7 @@ separatorBnC(graph_t* g, graph_t* h, double* x_bar, GRBmodel* master, double tim
    mydata.n = n;
    mydata.g = h;   // stable set are computed as clique on the complement graph
    mydata.alpha = alpha;
+   mydata.runtime = timeout;
    POST("add callback", GRBsetcallbackfunc(separa, subsetelim, (void *)&mydata));
    GRBupdatemodel(separa);
 
@@ -224,12 +233,13 @@ separatorBnC(graph_t* g, graph_t* h, double* x_bar, GRBmodel* master, double tim
       POST("get status", GRBgetintattr(separa, "Status", &status));
       if (status == GRB_OPTIMAL)
          break;
+      double rnt;
       if (status == GRB_TIME_LIMIT) {
-         double rnt;
          POST("get time", GRBgetdblattr(separa, "Runtime", &rnt));
          runtime += rnt;
          if (runtime >= timeout)
             break;
+         mydata.runtime = timeout - runtime;
          POST("set time", GRBsetdblattr(separa, "TimeLimit", timeout - runtime));
       } else {
          if (status == GRB_SOLUTION_LIMIT) {
@@ -249,6 +259,12 @@ separatorBnC(graph_t* g, graph_t* h, double* x_bar, GRBmodel* master, double tim
             exit(0);
          }
       }
+      runtime += rnt;
+      POST("get time", GRBgetdblattr(separa, "Runtime", &rnt));
+      mydata.runtime = timeout - runtime;
+	fprintf(stdout, "%f %f\n", timeout, runtime);
+	fflush(stdout);
+      //POST("set time", GRBsetdblattr(separa, "TimeLimit", timeout - runtime));
    }
    solCount = 0;
 

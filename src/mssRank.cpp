@@ -136,6 +136,7 @@ void solveLP(BitGraph& G, double alpha, bool BnC) {
 	double nl = 0;
 
 	while (elapsed < TIMEOUT && alpha0 <= alpha) {
+		n_iter = n_iter + 1;
 		GRBoptimize(master);
 
 		GRBgetintattr(master, "Status", &status);
@@ -154,7 +155,7 @@ void solveLP(BitGraph& G, double alpha, bool BnC) {
 		}
 
 		end = std::chrono::steady_clock::now();
-		std::string msg = "LogLocal: it " + std::to_string(n_iter++) + " Bound " + std::to_string(alpha_lp);
+		std::string msg = "LogLocal: it " + std::to_string(n_iter) + " Bound " + std::to_string(alpha_lp);
 		// Incremental timeout
 		double t0 = TIMEOUT - elapsed;
 		if (t0 < 1e-03) break;
@@ -180,6 +181,10 @@ void solveLP(BitGraph& G, double alpha, bool BnC) {
 				idx++;
 			else {
 				if (alpha0 <= alpha0) {
+					end = std::chrono::steady_clock::now();
+					elapsed = double(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()) / 1000;
+					printf("LogGlobal: it %d Bound %.4f Time %.3f alpha: %.f integer: %d\n",
+		n_iter, alpha_lp, elapsed, std::min(alpha0, alpha), isInt);
 					alpha0++;
 					idx = 0;
 					if (alpha0 == 3)

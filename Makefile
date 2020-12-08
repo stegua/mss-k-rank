@@ -30,6 +30,8 @@ CLIQUER_LIB = ${MYHOME}/externs/cliquer-1.21/cliquer.o ${MYHOME}/externs/cliquer
 # Directory for output files
 OUT_DIR=bin lib
 
+all: bitgraph separatorBnB separatorBnC mss
+
 bitgraph: ${OUT_DIR} ${SRC}/bitGraph.cpp
 	${COMPILER} -c -g -pg ${SRC}/bitGraph.cpp -o ${LIB}/bitGraph.o -I${INCLUDE} ${CLIQUER_INC} ${GUROBI_INC}
 

@@ -10,10 +10,10 @@
 #include <stdlib.h>
 #include <limits.h>
 // UNDER WINDOWS:
-#include "mytime.h"
+//#include "mytime.h"
 // UNDER LINUX:
-//#include <sys/time.h>
-//#include <sys/times.h>
+#include <sys/time.h>
+#include <sys/times.h>
 
 #include "cliquer.h"
 
@@ -173,7 +173,9 @@ static int unweighted_clique_search_single(int *table, int min_size,
             timeval.tv_sec - realtimer.tv_sec +
             (double)(timeval.tv_usec - realtimer.tv_usec) /
             1000000, opts)) {
-            temp_list[temp_count++] = newtable;
+		fprintf(stdout, "timeout 1!\n");
+		fflush(stdout);
+            //temp_list[temp_count++] = newtable;
             return 0;
          }
       }
@@ -389,6 +391,9 @@ static int unweighted_clique_search_all(int *table, int start,
             (double)(timeval.tv_usec -
                realtimer.tv_usec) /
             1000000, opts)) {
+
+		fprintf(stdout, "timeout 2!\n");
+		fflush(stdout);
             /* Abort. */
             break;
          }
@@ -645,6 +650,8 @@ static int weighted_clique_search_single(int *table, int min_weight,
             1000000, opts)) {
             set_free(current_clique);
             current_clique = NULL;
+		fprintf(stdout, "timeout 3!\n");
+		fflush(stdout);
             break;
          }
       }
@@ -747,6 +754,8 @@ static int weighted_clique_search_all(int *table, int start,
             1000000, opts)) {
             set_free(current_clique);
             current_clique = NULL;
+		fprintf(stdout, "timeout 7!\n");
+		fflush(stdout);
             break;
          }
       }
@@ -1750,10 +1759,8 @@ boolean clique_print_time_always(int level, int i, int n, int max,
 boolean clique_time_out(int level, int i, int n, int max,
                         double cputime, double realtime,
                         clique_options *opts) {
-//   int* tt = opts->user_data;
-//   int t0 = (int)realtime;
-   if (cputime < 7200.0)
-      return TRUE;// cputime < tt[0];
-   else
-      return FALSE;
+	static double tot_runtime = 0;
+	tot_runtime += realtime;
+	double* tt = opts->user_data;
+	return tot_runtime < tt[0];
 }

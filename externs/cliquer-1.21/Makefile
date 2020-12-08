@@ -8,7 +8,7 @@ CC=gcc
 ## Compiler flags:
 
 # GCC:  (also -march=pentium etc, for machine-dependent optimizing)
-CFLAGS=-Wall -O3 -DNDEBUG -g
+CFLAGS=-Wall -O3 -DNDEBUG -g -march=native -ffast-math -mavx2
 
 # GCC w/ debugging:
 #CFLAGS=-Wall -g -DINLINE=

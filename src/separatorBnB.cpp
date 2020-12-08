@@ -51,6 +51,9 @@ int separatorBnB(BitGraph * G, double * x_bar, GRBmodel * master,
    if (result.first >= alpha + CUT_VIOL) {
       fprintf(stdout, "%s Violation: %.3f |U| = %d alpha=%.0f zeros: %d cut_viol: %.3f ",
               msg.c_str(), result.first, (int)result.second.size(), alpha, n-zeros, cut_viol);
+      auto end = std::chrono::steady_clock::now();
+      auto elapsed = double(std::chrono::duration_cast<std::chrono::milliseconds>(end - start_time).count()) / 1000;
+      printf("Time %.3f\n", elapsed);
 
       int* ind = (int*)malloc(n * sizeof(int));
       double* val = (double*)malloc(n * sizeof(double));
@@ -68,13 +71,10 @@ int separatorBnB(BitGraph * G, double * x_bar, GRBmodel * master,
          ret_code = 2;
       else
          ret_code = 1;
-   } else
-      fprintf(stdout, "%s Violation: %.3f |U| = %d alpha=%.0f zeros: %d cut_viol: %.3f ",
-              msg.c_str(), 0.0, 0, alpha, n-zeros, cut_viol);
+   } //else
+     // fprintf(stdout, "%s Violation: %.3f |U| = %d alpha=%.0f zeros: %d cut_viol: %.3f ",
+     //         msg.c_str(), 0.0, 0, alpha, n-zeros, cut_viol);
 
-   auto end = std::chrono::steady_clock::now();
-   auto elapsed = double(std::chrono::duration_cast<std::chrono::milliseconds>(end - start_time).count()) / 1000;
-   printf("Time %.3f\n", elapsed);
 
    return ret_code;
 }

@@ -22,7 +22,7 @@ const double INT_TOL = 0.0001;
 const uint64_t NODE_LIMIT = std::numeric_limits<uint64_t>::max();
 
 const double CUT_VIOL = 0.01;
-const double TIMEOUT = 7200;
+const double TIMEOUT = 1;//7200;
 const int    PERTURB = 2;        // {0: none, 1: -eps, 2: +eps, 3: coord}
 
 
