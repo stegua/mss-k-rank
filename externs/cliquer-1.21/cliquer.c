@@ -10,10 +10,10 @@
 #include <stdlib.h>
 #include <limits.h>
  // UNDER WINDOWS:
-#include "mytime.h"
+//#include "mytime.h"
 // UNDER LINUX:
-//#include <sys/time.h>
-//#include <sys/times.h>
+#include <sys/time.h>
+#include <sys/times.h>
 
 #include "cliquer.h"
 
