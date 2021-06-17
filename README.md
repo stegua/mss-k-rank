@@ -67,4 +67,12 @@ If you ever find our paper useful for your research, or if you reuse any snippet
   year    = 2021,
   note    = {Accepted for publication, to apper}
 }
+
+@inproceedings{SCSG2017,
+  title={On the Separation of Topology-Free Rank Inequalities for the Max Stable Set Problem},
+  author={Coniglio, Stefano and Gualandi, Stefano},
+  booktitle={16th International Symposium on Experimental Algorithms (SEA 2017)},
+  year={2017},
+  organization={Schloss Dagstuhl-Leibniz-Zentrum fuer Informatik}
+}
 ```
