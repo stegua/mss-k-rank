@@ -3,6 +3,11 @@ This repository contains the source code used for the computational experiments 
 
 * S. Congiglio, S. Gualandi. *Optimizing over the Closure of Rank Inequalities with a Small Right-Hand Side for the Maximum Stable Set problem via Bilevel Programming*. Accepted for publication at **INFORMS Journal of Computing** (to appear).
 
+An early version of our work was presented in 2017 at the [SEA conference](https://nms.kcl.ac.uk/informatics/events/SEA2017/):
+
+* S. Congiglio, S. Gualandi. *On the Separation of Topology-Free Rank Inequalities for the Max Stable Set Problem*. 16th International Symposium on Experimental Algorithms (SEA 2017). Available online: [.pdf](https://drops.dagstuhl.de/opus/volltexte/2017/7626/pdf/LIPIcs-SEA-2017-29.pdf)
+
+
 ## Requiriments and Installation
 The source code relies on the three following external libraries:
 
