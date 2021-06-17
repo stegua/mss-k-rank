@@ -81,26 +81,8 @@ Gs = [
     'r-100-0.9-5-278', 'r-100-0.9-6-279', 'r-100-0.9-7-280', 'r-100-0.9-8-281',
     'r-100-0.9-9-282', 'r-100-0.9-10-283' ] 
 
-# Gx TEST
 DIRTEST = './data/rnd/'
 COMMANDS = []
-
-#for T in [11, 12, 13, 14, 5]:
-	#for dt in Gs:
-    		#TEST = join(DIRTEST, dt)
-
-    		#LOG = join('./tmp/{}.test.{}.log'.format(dt, T))
-    		#CMD = './bin/mssRank ' + TEST + ' {} > '.format(T) + LOG
-    		#COMMANDS.append(CMD)
-
-#logging.info("Start testing...")
-#print(COMMANDS)
-#pool = Pool(16)  # four concurrent commands at a time
-#for i, returncode in enumerate(pool.imap(partial(call, shell=True), COMMANDS)):
-	#print('comando: ', COMMANDS[i])
-	#logging.info('comando: ', COMMANDS[i])
-	#if returncode != 0:
-		#logging.info("%d command failed: %d" % (i, returncode))
 
 for T in [10]:
 	for dt in Gs:
@@ -112,10 +94,8 @@ for T in [10]:
 
 logging.info("Start testing...")
 print(COMMANDS)
-pool = Pool(1)  # four concurrent commands at a time
+pool = Pool(10)  # four concurrent commands at a time
 for i, returncode in enumerate(pool.imap(partial(call, shell=True), COMMANDS)):
-	print('comando: ', COMMANDS[i])
-	logging.info('comando: ', COMMANDS[i])
-	if returncode != 0:
-		logginf.info("%d command failed: %d" % (i, returncode))
-
+    print('comando: ', COMMANDS[i])
+    if returncode != 0:
+        print("%d command failed: %d" % (i, returncode))
