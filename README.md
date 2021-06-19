@@ -1,11 +1,11 @@
 # Maximum Stable Set by k-Rank Cut Inequalities
 This repository contains the source code used for the computational experiments in the following paper:
 
-* S. Congiglio, S. Gualandi. *Optimizing over the Closure of Rank Inequalities with a Small Right-Hand Side for the Maximum Stable Set problem via Bilevel Programming*. Accepted for publication at **INFORMS Journal of Computing** (to appear).
+* S. Coniglio, S. Gualandi. *Optimizing over the Closure of Rank Inequalities with a Small Right-Hand Side for the Maximum Stable Set problem via Bilevel Programming*. Accepted for publication at **INFORMS Journal of Computing** (to appear).
 
 An early version of our work was presented in 2017 at the [SEA conference](https://nms.kcl.ac.uk/informatics/events/SEA2017/):
 
-* S. Congiglio, S. Gualandi. *On the Separation of Topology-Free Rank Inequalities for the Max Stable Set Problem*. 16th International Symposium on Experimental Algorithms (SEA 2017). Available online: [.pdf](https://drops.dagstuhl.de/opus/volltexte/2017/7626/pdf/LIPIcs-SEA-2017-29.pdf)
+* S. Coniglio, S. Gualandi. *On the Separation of Topology-Free Rank Inequalities for the Max Stable Set Problem*. 16th International Symposium on Experimental Algorithms (SEA 2017). Available online: [.pdf](https://drops.dagstuhl.de/opus/volltexte/2017/7626/pdf/LIPIcs-SEA-2017-29.pdf)
 
 
 ## Requiriments and Installation
@@ -46,7 +46,7 @@ In the experiments, we use the following set of graphs, which are present in the
 All the graphs are stored in the ascii text [DIMACS format](http://www.diag.uniroma1.it/challenge9/format.shtml).
 
 ## Reproducing the results
-In order to facilitate the reproduction of our results, we include three python script that we use to automatize our tests:
+In order to facilitate the reproduction of our results, we include three python scripts that we use to automatize our tests:
 
 1. `run_test_dimacs.py`
 2. `run_test_sparse.py`
