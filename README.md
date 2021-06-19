@@ -65,7 +65,7 @@ If you ever find our paper useful for your research, or if you reuse any snippet
   title   = {Optimizing over the Closure of Rank Inequalities with a Small Right-Hand Side for the Maximum Stable Set problem via Bilevel Programming},
   journal = {{INFORMS} Journal on Computing},
   year    = 2021,
-  note    = {Accepted for publication, to apper}
+  note    = {Accepted for publication, to appear}
 }
 
 @inproceedings{SCSG2017,
